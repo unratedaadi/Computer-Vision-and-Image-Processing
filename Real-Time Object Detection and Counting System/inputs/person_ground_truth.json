@@ -1,0 +1,197 @@
+{
+  "01_bus.jpg": {
+    "condition": "Daylight; walking people and two truncated figures",
+    "people": [
+      [
+        0,
+        515,
+        72,
+        365
+      ],
+      [
+        48,
+        389,
+        179,
+        515
+      ],
+      [
+        225,
+        400,
+        121,
+        455
+      ],
+      [
+        686,
+        385,
+        124,
+        490
+      ]
+    ]
+  },
+  "02_team.jpg": {
+    "condition": "Overlapping, cropped foreground people",
+    "people": [
+      [
+        120,
+        199,
+        1035,
+        521
+      ],
+      [
+        744,
+        40,
+        397,
+        680
+      ]
+    ]
+  },
+  "03_court.png": {
+    "condition": "Indoor grayscale; full-body and cropped people",
+    "people": [
+      [
+        26,
+        79,
+        132,
+        397
+      ],
+      [
+        419,
+        14,
+        221,
+        466
+      ]
+    ]
+  },
+  "04_cyclist.jpg": {
+    "condition": "Riding pose and partially visible photographer",
+    "people": [
+      [
+        148,
+        54,
+        118,
+        160
+      ],
+      [
+        0,
+        167,
+        101,
+        167
+      ]
+    ]
+  },
+  "05_street.jpg": {
+    "condition": "No people; bicycle, truck and dog",
+    "people": []
+  },
+  "06_bus_low_light.png": {
+    "condition": "Simulated low light; 14% source intensity",
+    "people": [
+      [
+        0,
+        515,
+        72,
+        365
+      ],
+      [
+        48,
+        389,
+        179,
+        515
+      ],
+      [
+        225,
+        400,
+        121,
+        455
+      ],
+      [
+        686,
+        385,
+        124,
+        490
+      ]
+    ]
+  },
+  "07_court_small.png": {
+    "condition": "Simulated distance; actors scaled to 25%",
+    "people": [
+      [
+        246,
+        200,
+        33,
+        99
+      ],
+      [
+        345,
+        184,
+        55,
+        116
+      ]
+    ]
+  },
+  "08_crowded_montage.png": {
+    "condition": "Synthetic crowded montage; 10 people across four panels",
+    "people": [
+      [
+        70,
+        114,
+        16,
+        81
+      ],
+      [
+        81,
+        86,
+        40,
+        114
+      ],
+      [
+        120,
+        89,
+        27,
+        101
+      ],
+      [
+        222,
+        86,
+        28,
+        109
+      ],
+      [
+        350,
+        80,
+        259,
+        130
+      ],
+      [
+        506,
+        40,
+        99,
+        170
+      ],
+      [
+        13,
+        280,
+        66,
+        198
+      ],
+      [
+        210,
+        247,
+        110,
+        233
+      ],
+      [
+        415,
+        288,
+        76,
+        102
+      ],
+      [
+        320,
+        360,
+        65,
+        107
+      ]
+    ]
+  }
+}

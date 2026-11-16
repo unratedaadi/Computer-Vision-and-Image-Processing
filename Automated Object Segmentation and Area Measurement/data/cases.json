@@ -1,0 +1,125 @@
+{
+  "leaf_01_original": {
+    "condition": "Original lighting",
+    "count": 1,
+    "sources": [
+      "C_1_1_2_bot.jpeg"
+    ]
+  },
+  "leaf_01_dim": {
+    "condition": "Simulated dim light",
+    "count": 1,
+    "sources": [
+      "C_1_1_2_bot.jpeg"
+    ]
+  },
+  "leaf_01_shadow": {
+    "condition": "Simulated side shadow",
+    "count": 1,
+    "sources": [
+      "C_1_1_2_bot.jpeg"
+    ]
+  },
+  "leaf_02_original": {
+    "condition": "Original lighting",
+    "count": 1,
+    "sources": [
+      "C_1_1_3_bot.jpeg"
+    ]
+  },
+  "leaf_02_dim": {
+    "condition": "Simulated dim light",
+    "count": 1,
+    "sources": [
+      "C_1_1_3_bot.jpeg"
+    ]
+  },
+  "leaf_02_shadow": {
+    "condition": "Simulated side shadow",
+    "count": 1,
+    "sources": [
+      "C_1_1_3_bot.jpeg"
+    ]
+  },
+  "leaf_03_original": {
+    "condition": "Original lighting",
+    "count": 1,
+    "sources": [
+      "C_1_1_5_bot.jpeg"
+    ]
+  },
+  "leaf_03_dim": {
+    "condition": "Simulated dim light",
+    "count": 1,
+    "sources": [
+      "C_1_1_5_bot.jpeg"
+    ]
+  },
+  "leaf_03_shadow": {
+    "condition": "Simulated side shadow",
+    "count": 1,
+    "sources": [
+      "C_1_1_5_bot.jpeg"
+    ]
+  },
+  "leaf_04_original": {
+    "condition": "Original lighting",
+    "count": 1,
+    "sources": [
+      "C_1_1_6_bot.jpeg"
+    ]
+  },
+  "leaf_04_dim": {
+    "condition": "Simulated dim light",
+    "count": 1,
+    "sources": [
+      "C_1_1_6_bot.jpeg"
+    ]
+  },
+  "leaf_04_shadow": {
+    "condition": "Simulated side shadow",
+    "count": 1,
+    "sources": [
+      "C_1_1_6_bot.jpeg"
+    ]
+  },
+  "leaf_05_original": {
+    "condition": "Original lighting",
+    "count": 1,
+    "sources": [
+      "C_1_1_7_bot.jpeg"
+    ]
+  },
+  "leaf_05_dim": {
+    "condition": "Simulated dim light",
+    "count": 1,
+    "sources": [
+      "C_1_1_7_bot.jpeg"
+    ]
+  },
+  "leaf_05_shadow": {
+    "condition": "Simulated side shadow",
+    "count": 1,
+    "sources": [
+      "C_1_1_7_bot.jpeg"
+    ]
+  },
+  "scene_separated": {
+    "condition": "Separated composite",
+    "count": 3,
+    "sources": [
+      "C_1_1_2_bot.jpeg",
+      "C_1_1_5_bot.jpeg",
+      "C_1_1_7_bot.jpeg"
+    ]
+  },
+  "scene_touching": {
+    "condition": "Touching composite",
+    "count": 3,
+    "sources": [
+      "C_1_1_2_bot.jpeg",
+      "C_1_1_5_bot.jpeg",
+      "C_1_1_7_bot.jpeg"
+    ]
+  }
+}

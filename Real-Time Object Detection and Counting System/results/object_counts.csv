@@ -1,0 +1,26 @@
+method,image,label,count
+hog,01_bus.jpg,person,3
+hog,02_team.jpg,person,1
+hog,03_court.png,person,2
+hog,04_cyclist.jpg,,0
+hog,05_street.jpg,person,1
+hog,06_bus_low_light.png,person,1
+hog,07_court_small.png,person,1
+hog,08_crowded_montage.png,person,2
+yolo,01_bus.jpg,bus,1
+yolo,01_bus.jpg,person,2
+yolo,02_team.jpg,person,2
+yolo,03_court.png,person,2
+yolo,03_court.png,remote,1
+yolo,04_cyclist.jpg,person,2
+yolo,04_cyclist.jpg,tennis racket,2
+yolo,05_street.jpg,bicycle,2
+yolo,05_street.jpg,car,2
+yolo,05_street.jpg,cat,1
+yolo,05_street.jpg,dog,1
+yolo,05_street.jpg,person,1
+yolo,06_bus_low_light.png,bus,1
+yolo,06_bus_low_light.png,person,3
+yolo,07_court_small.png,,0
+yolo,08_crowded_montage.png,person,12
+yolo,08_crowded_montage.png,truck,1

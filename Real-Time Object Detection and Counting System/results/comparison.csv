@@ -1,0 +1,3 @@
+method,tp,fp,fn,precision,recall,f1,person_count_mae,median_ms
+hog,2,9,24,0.1818,0.0769,0.1081,2.125,149.635
+yolo,17,7,9,0.7083,0.6538,0.68,1,12.762

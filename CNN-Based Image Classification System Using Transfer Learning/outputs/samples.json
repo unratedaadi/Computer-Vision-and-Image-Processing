@@ -1,0 +1,52 @@
+[
+  {
+    "file": "digit-0-48.png",
+    "index": 48,
+    "actual": 0
+  },
+  {
+    "file": "digit-1-80.png",
+    "index": 80,
+    "actual": 1
+  },
+  {
+    "file": "digit-2-50.png",
+    "index": 50,
+    "actual": 2
+  },
+  {
+    "file": "digit-3-62.png",
+    "index": 62,
+    "actual": 3
+  },
+  {
+    "file": "digit-4-124.png",
+    "index": 124,
+    "actual": 4
+  },
+  {
+    "file": "digit-5-15.png",
+    "index": 15,
+    "actual": 5
+  },
+  {
+    "file": "digit-6-351.png",
+    "index": 351,
+    "actual": 6
+  },
+  {
+    "file": "digit-7-52.png",
+    "index": 52,
+    "actual": 7
+  },
+  {
+    "file": "digit-8-76.png",
+    "index": 76,
+    "actual": 8
+  },
+  {
+    "file": "digit-9-19.png",
+    "index": 19,
+    "actual": 9
+  }
+]

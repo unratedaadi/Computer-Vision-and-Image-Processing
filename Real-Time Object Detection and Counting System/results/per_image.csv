@@ -1,0 +1,17 @@
+method,image,condition,people_actual,people_detected,tp,fp,fn,absolute_count_error,processing_ms
+hog,01_bus.jpg,Daylight; walking people and two truncated figures,4,3,0,3,4,1,355.326
+hog,02_team.jpg,"Overlapping, cropped foreground people",2,1,0,1,2,1,373.592
+hog,03_court.png,Indoor grayscale; full-body and cropped people,2,2,1,1,1,0,110.02
+hog,04_cyclist.jpg,Riding pose and partially visible photographer,2,0,0,0,2,2,51.028
+hog,05_street.jpg,"No people; bicycle, truck and dog",0,1,0,1,0,1,164.777
+hog,06_bus_low_light.png,Simulated low light; 14% source intensity,4,1,0,1,4,3,351.14
+hog,07_court_small.png,Simulated distance; actors scaled to 25%,2,1,0,1,2,1,134.493
+hog,08_crowded_montage.png,Synthetic crowded montage; 10 people across four panels,10,2,1,1,9,8,116.905
+yolo,01_bus.jpg,Daylight; walking people and two truncated figures,4,2,2,0,2,2,12.791
+yolo,02_team.jpg,"Overlapping, cropped foreground people",2,2,2,0,0,0,12.878
+yolo,03_court.png,Indoor grayscale; full-body and cropped people,2,2,2,0,0,0,12.939
+yolo,04_cyclist.jpg,Riding pose and partially visible photographer,2,2,2,0,0,0,12.631
+yolo,05_street.jpg,"No people; bicycle, truck and dog",0,1,0,1,0,1,12.753
+yolo,06_bus_low_light.png,Simulated low light; 14% source intensity,4,3,3,0,1,1,12.771
+yolo,07_court_small.png,Simulated distance; actors scaled to 25%,2,0,0,0,2,2,12.729
+yolo,08_crowded_montage.png,Synthetic crowded montage; 10 people across four panels,10,12,6,6,4,2,12.734

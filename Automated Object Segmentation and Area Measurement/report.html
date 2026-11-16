@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mini Project 5 | Automated Object Segmentation and Area Measurement</title>
+<style>
+:root { color-scheme: light; --ink: #1b2c23; --muted: #48584e; --paper: #f5f5ee; --line: #cdd6ca; --accent: #205739; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.55 system-ui, sans-serif; }
+header { border-bottom: 1px solid var(--line); background: #e3ecdf; }
+.wrap { max-width: 1120px; margin: auto; padding: 2.4rem clamp(1rem, 4vw, 3rem); }
+h1, h2 { font-family: Georgia, serif; font-weight: normal; line-height: 1.1; }
+h1 { max-width: 840px; font-size: clamp(2.4rem, 5vw, 4.1rem); margin: .35rem 0 .75rem; }
+h2 { font-size: 2rem; margin: 0 0 1rem; }
+p { margin: .55rem 0 .9rem; }
+header p:last-child, section > p { max-width: 80ch; }
+.kicker { font-size: .82rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+section + section { border-top: 1px solid var(--line); margin-top: 2.6rem; padding-top: 2.2rem; }
+.layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+figure { margin: 0; }
+figure img { width: 100%; height: auto; display: block; border: 1px solid #26392c; border-radius: .35rem; }
+figcaption, .note { color: var(--muted); font-size: .88rem; margin-top: .65rem; }
+label { display: block; font-weight: 650; margin-bottom: .35rem; }
+select { width: 100%; font: inherit; color: inherit; padding: .55rem .65rem; border: 1px solid #aebdac; border-radius: .3rem; background: #fff; }
+.table { overflow-x: auto; margin: .8rem 0; }
+table { width: 100%; border-collapse: collapse; background: #fff; font-variant-numeric: tabular-nums; }
+th, td { border-bottom: 1px solid var(--line); padding: .58rem .65rem; text-align: left; vertical-align: top; }
+thead th { background: #e3ecdf; }
+tbody th { font-weight: 550; }
+td { white-space: nowrap; }
+a { color: var(--accent); text-underline-offset: .2em; }
+li + li { margin-top: .48rem; }
+code { background: #e7ece3; padding: .1rem .2rem; }
+@media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
+@media print { body { background: white; font-size: 11pt; } .wrap { padding: 1rem 0; } section { break-inside: auto; } tr, figure { break-inside: avoid; } }
+</style>
+<header><div class="wrap">
+  <p class="kicker">Computer Vision and Image Processing · Mini Project 5</p>
+  <h1>Automated Object Segmentation and Area Measurement</h1>
+  <p>Fixed global thresholding and Otsu thresholding on five real leaf scans and twelve derived test cases.</p>
+</div></header>
+<main class="wrap">
+<section>
+  <h2>Working demonstration</h2>
+  <div class="layout">
+    <figure>
+      <a id="image-link" href="outputs/leaf_04_original/comparison.png">
+        <img id="comparison" src="outputs/leaf_04_original/comparison.png" width="800" height="834"
+          alt="Input, reference foreground, fixed global and Otsu mask and annotated output">
+      </a>
+      <figcaption>Click to open the full-size comparison. The green outline marks predicted foreground.</figcaption>
+    </figure>
+    <div>
+      <label for="case">Benchmark image</label>
+      <select id="case"><option value="leaf_01_original">Leaf 01 · Original lighting</option>
+<option value="leaf_01_dim">Leaf 01 · Simulated dim light</option>
+<option value="leaf_01_shadow">Leaf 01 · Simulated side shadow</option>
+<option value="leaf_02_original">Leaf 02 · Original lighting</option>
+<option value="leaf_02_dim">Leaf 02 · Simulated dim light</option>
+<option value="leaf_02_shadow">Leaf 02 · Simulated side shadow</option>
+<option value="leaf_03_original">Leaf 03 · Original lighting</option>
+<option value="leaf_03_dim">Leaf 03 · Simulated dim light</option>
+<option value="leaf_03_shadow">Leaf 03 · Simulated side shadow</option>
+<option value="leaf_04_original" selected>Leaf 04 · Original lighting</option>
+<option value="leaf_04_dim">Leaf 04 · Simulated dim light</option>
+<option value="leaf_04_shadow">Leaf 04 · Simulated side shadow</option>
+<option value="leaf_05_original">Leaf 05 · Original lighting</option>
+<option value="leaf_05_dim">Leaf 05 · Simulated dim light</option>
+<option value="leaf_05_shadow">Leaf 05 · Simulated side shadow</option>
+<option value="scene_separated">Separated composite</option>
+<option value="scene_touching">Touching composite</option></select>
+      <div class="table"><table aria-label="Selected measurements">
+      <thead><tr><th scope="col">Method</th><th scope="col">Threshold</th><th scope="col">Count</th><th scope="col">Area (px²)</th><th scope="col">IoU</th></tr></thead>
+      <tbody id="selected-results"></tbody></table></div>
+      <p id="reference" class="note" aria-live="polite"></p>
+      <p><a id="input" href="data/inputs/leaf_04_original.png">Input image</a> ·
+      <a id="raw" href="outputs/leaf_04_original/otsu/raw_mask.png">Otsu raw mask</a> ·
+      <a id="clean" href="outputs/leaf_04_original/otsu/mask.png">Otsu cleaned mask</a></p>
+      <p class="note">Try the original, dim, and side-shadow variants of Leaf 04, then compare the separated and touching scenes.</p>
+      <noscript><p>Use the full count and area table below if JavaScript is disabled.</p></noscript>
+    </div>
+  </div>
+</section>
+<section>
+  <h2>Experimental method</h2>
+  <p>OpenCV decodes the image, converts it to grayscale and applies a 5 × 5 Gaussian blur. The fixed method uses intensity 200, selected as a baseline for the bright-background scans. Otsu estimates one threshold per image by maximizing the variance between the two intensity classes. Intensities at or below the chosen threshold become foreground.</p>
+  <p>Both methods apply a 5 × 5 elliptical opening and closing. Opening removes small spots, while closing fills small gaps. Eight-connected components smaller than 100 pixels are discarded. The area of each retained region is the number of pixels assigned to that component. Its perimeter is traced for the final overlay. Every output uses the benchmark image's pixel resolution.</p>
+  <p>The benchmark has 17 cases. The five source scans are evaluated at 465 × 638. For each scan, uniform dimming applies a gain of 0.62 and subtracts 12 intensity levels. The side shadow applies a horizontal gain ramp from 0.42 to 1.03. Both preserve leaf geometry. Two composites paste three resized leaf cutouts at different offsets on the same plain background. Reference masks use manually traced polygon outlines. Composite masks use the union of the projected silhouettes, while their reference instance count comes from the number of pasted leaves.</p>
+  <p>IoU is the intersection of predicted and reference foreground divided by their union. Dice is twice the intersection divided by the sum of foreground areas. Mean absolute area error averages the absolute difference between measured and reference areas as a percentage of reference area. Count matches report the number of images where the component count equals the expected instance count.</p>
+</section>
+<section>
+  <h2>Results by condition</h2>
+  <div class="table"><table>
+    <thead><tr><th scope="col">Condition</th><th scope="col">Method</th><th scope="col">Count matches</th><th scope="col">Raw IoU</th><th scope="col">Final IoU</th><th scope="col">Dice</th><th scope="col">Mean absolute area error</th></tr></thead>
+    <tbody><tr><th scope='row'>Original lighting</th><td>Fixed global</td><td>5/5</td><td>0.925</td><td>0.927</td><td>0.962</td><td>2.8%</td></tr>
+<tr><th scope='row'>Original lighting</th><td>Otsu</td><td>5/5</td><td>0.936</td><td>0.937</td><td>0.967</td><td>2.4%</td></tr>
+<tr><th scope='row'>Simulated dim light</th><td>Fixed global</td><td>5/5</td><td>0.117</td><td>0.117</td><td>0.208</td><td>788.5%</td></tr>
+<tr><th scope='row'>Simulated dim light</th><td>Otsu</td><td>5/5</td><td>0.936</td><td>0.937</td><td>0.967</td><td>2.4%</td></tr>
+<tr><th scope='row'>Simulated side shadow</th><td>Fixed global</td><td>5/5</td><td>0.185</td><td>0.185</td><td>0.310</td><td>458.4%</td></tr>
+<tr><th scope='row'>Simulated side shadow</th><td>Otsu</td><td>5/5</td><td>0.207</td><td>0.207</td><td>0.341</td><td>395.9%</td></tr>
+<tr><th scope='row'>Separated composite</th><td>Fixed global</td><td>1/1</td><td>0.969</td><td>0.969</td><td>0.984</td><td>3.0%</td></tr>
+<tr><th scope='row'>Separated composite</th><td>Otsu</td><td>1/1</td><td>0.971</td><td>0.971</td><td>0.985</td><td>2.8%</td></tr>
+<tr><th scope='row'>Touching composite</th><td>Fixed global</td><td>0/1</td><td>0.973</td><td>0.976</td><td>0.988</td><td>2.3%</td></tr>
+<tr><th scope='row'>Touching composite</th><td>Otsu</td><td>0/1</td><td>0.974</td><td>0.977</td><td>0.988</td><td>2.2%</td></tr></tbody>
+  </table></div>
+  <p>IoU and Dice are per-image means within each condition. Raw IoU is measured before opening, closing and component filtering.</p>
+  <ul>
+    <li><strong>Original scans.</strong> Mean IoU was 0.927 for the fixed threshold and 0.937 for Otsu. Both counted each original leaf correctly. Mask cleanup changed mean IoU only slightly on these scans because most errors are along contours and areas of low contrast.</li>
+    <li><strong>Uniform dimming.</strong> Otsu retained 0.937 mean IoU, while the fixed method fell to 0.117. The fixed method marked all 296,670 pixels in each dim scan as foreground. Its count of one matched the expected number despite the failed mask.</li>
+    <li><strong>Side shadow.</strong> The leaf and dark background occupied overlapping intensity ranges. Otsu's mean IoU fell to 0.207. More even lighting, illumination correction or local thresholding could address the background gradient. Opening and closing cannot remove a connected background band of this size.</li>
+    <li><strong>Overlap.</strong> Otsu detected 3 regions in the separated scene and 1 in the touching scene despite a foreground IoU of 0.977 there. The fixed method returned the same counts. Marker-controlled watershed could help with lightly touching leaves. Heavy overlap may require instance segmentation, and the hidden leaf area cannot be recovered from a single view without additional assumptions.</li>
+  </ul>
+  <p><strong>Limitations.</strong> Five related flatbed scans provide a small sample, and the derived images share source objects. Manual boundaries approximate fine tips and petioles. The stress tests simulate lighting changes on the scans. Field performance would need independent, annotated camera images. Converting projected area to physical units requires calibration at the object plane.</p>
+</section>
+<section>
+  <h2>Object counts and estimated area</h2>
+  <div class="table"><table>
+    <thead><tr><th scope="col">Image</th><th scope="col">Ref. count</th><th scope="col">Ref. px²</th><th scope="col">Fixed count</th><th scope="col">Fixed px²</th><th scope="col">Otsu count</th><th scope="col">Otsu px²</th></tr></thead>
+    <tbody><tr><th scope='row'>Leaf 01 · Original lighting</th><td>1</td><td>49,880</td><td>1</td><td>50,255</td><td>1</td><td>50,330</td></tr>
+<tr><th scope='row'>Leaf 01 · Simulated dim light</th><td>1</td><td>49,880</td><td>1</td><td>296,670</td><td>1</td><td>50,329</td></tr>
+<tr><th scope='row'>Leaf 01 · Simulated side shadow</th><td>1</td><td>49,880</td><td>1</td><td>190,943</td><td>1</td><td>170,070</td></tr>
+<tr><th scope='row'>Leaf 02 · Original lighting</th><td>1</td><td>31,748</td><td>1</td><td>31,749</td><td>1</td><td>32,044</td></tr>
+<tr><th scope='row'>Leaf 02 · Simulated dim light</th><td>1</td><td>31,748</td><td>1</td><td>296,670</td><td>1</td><td>32,037</td></tr>
+<tr><th scope='row'>Leaf 02 · Simulated side shadow</th><td>1</td><td>31,748</td><td>1</td><td>182,453</td><td>1</td><td>155,872</td></tr>
+<tr><th scope='row'>Leaf 03 · Original lighting</th><td>1</td><td>30,413</td><td>1</td><td>30,718</td><td>1</td><td>31,297</td></tr>
+<tr><th scope='row'>Leaf 03 · Simulated dim light</th><td>1</td><td>30,413</td><td>1</td><td>296,670</td><td>1</td><td>31,299</td></tr>
+<tr><th scope='row'>Leaf 03 · Simulated side shadow</th><td>1</td><td>30,413</td><td>1</td><td>187,657</td><td>1</td><td>169,651</td></tr>
+<tr><th scope='row'>Leaf 04 · Original lighting</th><td>1</td><td>29,487</td><td>1</td><td>26,316</td><td>1</td><td>27,941</td></tr>
+<tr><th scope='row'>Leaf 04 · Simulated dim light</th><td>1</td><td>29,487</td><td>1</td><td>296,670</td><td>1</td><td>27,882</td></tr>
+<tr><th scope='row'>Leaf 04 · Simulated side shadow</th><td>1</td><td>29,487</td><td>1</td><td>186,092</td><td>1</td><td>165,873</td></tr>
+<tr><th scope='row'>Leaf 05 · Original lighting</th><td>1</td><td>31,841</td><td>1</td><td>32,318</td><td>1</td><td>32,473</td></tr>
+<tr><th scope='row'>Leaf 05 · Simulated dim light</th><td>1</td><td>31,841</td><td>1</td><td>296,670</td><td>1</td><td>32,481</td></tr>
+<tr><th scope='row'>Leaf 05 · Simulated side shadow</th><td>1</td><td>31,841</td><td>1</td><td>186,732</td><td>1</td><td>167,909</td></tr>
+<tr><th scope='row'>Separated composite</th><td>3</td><td>60,075</td><td>3</td><td>58,280</td><td>3</td><td>58,412</td></tr>
+<tr><th scope='row'>Touching composite</th><td>3</td><td>50,207</td><td>1</td><td>49,029</td><td>1</td><td>49,118</td></tr></tbody>
+  </table></div>
+  <p>Areas in this table sum all regions found by the method. Individual region measurements and bounding boxes are in the object CSV.</p>
+  <p><a href="outputs/summary.csv">Image-level results CSV</a> ·
+     <a href="outputs/objects.csv">Per-object measurements CSV</a> ·
+     <a href="VIVA.md">Demonstration and viva guide</a></p>
+</section>
+<section>
+  <h2>Source images</h2>
+  <p>John Lagergren et al., <em>Few-Shot Learning Enables Population-Scale Analysis of Leaf Traits in Populus trichocarpa</em>, Plant Phenomics. The five original JPEGs are included under <code>data/originals</code>. <a href="https://doi.org/10.34133/plantphenomics.0072">Publication</a> · <a href="https://github.com/jlager/few-shot-leaf-segmentation">Dataset repository</a></p>
+</section>
+</main>
+<script>
+const cases = {"leaf_01_original": {"global": {"image": "leaf_01_original", "condition": "Original lighting", "method": "global", "threshold": "200", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "50255", "reference_objects": "1", "reference_area_px": "49880", "absolute_count_error": "0", "area_error_pct": "0.752", "raw_iou": "0.941755", "iou": "0.941993", "dice": "0.97013", "pixel_accuracy": "0.989918"}, "otsu": {"image": "leaf_01_original", "condition": "Original lighting", "method": "otsu", "threshold": "202", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "50330", "reference_objects": "1", "reference_area_px": "49880", "absolute_count_error": "0", "area_error_pct": "0.902", "raw_iou": "0.941948", "iou": "0.942167", "dice": "0.970223", "pixel_accuracy": "0.989942"}}, "leaf_01_dim": {"global": {"image": "leaf_01_dim", "condition": "Simulated dim light", "method": "global", "threshold": "200", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "296670", "reference_objects": "1", "reference_area_px": "49880", "absolute_count_error": "0", "area_error_pct": "494.767", "raw_iou": "0.168133", "iou": "0.168133", "dice": "0.287866", "pixel_accuracy": "0.168133"}, "otsu": {"image": "leaf_01_dim", "condition": "Simulated dim light", "method": "otsu", "threshold": "113", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "50329", "reference_objects": "1", "reference_area_px": "49880", "absolute_count_error": "0", "area_error_pct": "0.9", "raw_iou": "0.941909", "iou": "0.942148", "dice": "0.970212", "pixel_accuracy": "0.989938"}}, "leaf_01_shadow": {"global": {"image": "leaf_01_shadow", "condition": "Simulated side shadow", "method": "global", "threshold": "200", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "190943", "reference_objects": "1", "reference_area_px": "49880", "absolute_count_error": "0", "area_error_pct": "282.805", "raw_iou": "0.26122", "iou": "0.26123", "dice": "0.414246", "pixel_accuracy": "0.524512"}, "otsu": {"image": "leaf_01_shadow", "condition": "Simulated side shadow", "method": "otsu", "threshold": "177", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "170070", "reference_objects": "1", "reference_area_px": "49880", "absolute_count_error": "0", "area_error_pct": "240.958", "raw_iou": "0.293025", "iou": "0.293063", "dice": "0.453285", "pixel_accuracy": "0.594667"}}, "leaf_02_original": {"global": {"image": "leaf_02_original", "condition": "Original lighting", "method": "global", "threshold": "200", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "31749", "reference_objects": "1", "reference_area_px": "31748", "absolute_count_error": "0", "area_error_pct": "0.003", "raw_iou": "0.927908", "iou": "0.928125", "dice": "0.962723", "pixel_accuracy": "0.992021"}, "otsu": {"image": "leaf_02_original", "condition": "Original lighting", "method": "otsu", "threshold": "207", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "32044", "reference_objects": "1", "reference_area_px": "31748", "absolute_count_error": "0", "area_error_pct": "0.932", "raw_iou": "0.927059", "iou": "0.927367", "dice": "0.962315", "pixel_accuracy": "0.991897"}}, "leaf_02_dim": {"global": {"image": "leaf_02_dim", "condition": "Simulated dim light", "method": "global", "threshold": "200", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "296670", "reference_objects": "1", "reference_area_px": "31748", "absolute_count_error": "0", "area_error_pct": "834.453", "raw_iou": "0.107015", "iou": "0.107015", "dice": "0.193339", "pixel_accuracy": "0.107015"}, "otsu": {"image": "leaf_02_dim", "condition": "Simulated dim light", "method": "otsu", "threshold": "116", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "32037", "reference_objects": "1", "reference_area_px": "31748", "absolute_count_error": "0", "area_error_pct": "0.91", "raw_iou": "0.927197", "iou": "0.927505", "dice": "0.962389", "pixel_accuracy": "0.991914"}}, "leaf_02_shadow": {"global": {"image": "leaf_02_shadow", "condition": "Simulated side shadow", "method": "global", "threshold": "200", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "182453", "reference_objects": "1", "reference_area_px": "31748", "absolute_count_error": "0", "area_error_pct": "474.691", "raw_iou": "0.173924", "iou": "0.174006", "dice": "0.296432", "pixel_accuracy": "0.492011"}, "otsu": {"image": "leaf_02_shadow", "condition": "Simulated side shadow", "method": "otsu", "threshold": "178", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "155872", "reference_objects": "1", "reference_area_px": "31748", "absolute_count_error": "0", "area_error_pct": "390.966", "raw_iou": "0.203659", "iou": "0.20368", "dice": "0.338429", "pixel_accuracy": "0.581609"}}, "leaf_03_original": {"global": {"image": "leaf_03_original", "condition": "Original lighting", "method": "global", "threshold": "200", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "30718", "reference_objects": "1", "reference_area_px": "30413", "absolute_count_error": "0", "area_error_pct": "1.003", "raw_iou": "0.918842", "iou": "0.922177", "dice": "0.959513", "pixel_accuracy": "0.991657"}, "otsu": {"image": "leaf_03_original", "condition": "Original lighting", "method": "otsu", "threshold": "210", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "31297", "reference_objects": "1", "reference_area_px": "30413", "absolute_count_error": "0", "area_error_pct": "2.907", "raw_iou": "0.922083", "iou": "0.92237", "dice": "0.959618", "pixel_accuracy": "0.9916"}}, "leaf_03_dim": {"global": {"image": "leaf_03_dim", "condition": "Simulated dim light", "method": "global", "threshold": "200", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "296670", "reference_objects": "1", "reference_area_px": "30413", "absolute_count_error": "0", "area_error_pct": "875.471", "raw_iou": "0.102515", "iou": "0.102515", "dice": "0.185965", "pixel_accuracy": "0.102515"}, "otsu": {"image": "leaf_03_dim", "condition": "Simulated dim light", "method": "otsu", "threshold": "118", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "31299", "reference_objects": "1", "reference_area_px": "30413", "absolute_count_error": "0", "area_error_pct": "2.913", "raw_iou": "0.921994", "iou": "0.922313", "dice": "0.959586", "pixel_accuracy": "0.991593"}}, "leaf_03_shadow": {"global": {"image": "leaf_03_shadow", "condition": "Simulated side shadow", "method": "global", "threshold": "200", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "187657", "reference_objects": "1", "reference_area_px": "30413", "absolute_count_error": "0", "area_error_pct": "517.029", "raw_iou": "0.162024", "iou": "0.162042", "dice": "0.278892", "pixel_accuracy": "0.469943"}, "otsu": {"image": "leaf_03_shadow", "condition": "Simulated side shadow", "method": "otsu", "threshold": "182", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "169651", "reference_objects": "1", "reference_area_px": "30413", "absolute_count_error": "0", "area_error_pct": "457.824", "raw_iou": "0.1779", "iou": "0.177997", "dice": "0.302203", "pixel_accuracy": "0.52943"}}, "leaf_04_original": {"global": {"image": "leaf_04_original", "condition": "Original lighting", "method": "global", "threshold": "200", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "26316", "reference_objects": "1", "reference_area_px": "29487", "absolute_count_error": "0", "area_error_pct": "-10.754", "raw_iou": "0.882425", "iou": "0.889385", "dice": "0.941455", "pixel_accuracy": "0.988988"}, "otsu": {"image": "leaf_04_original", "condition": "Original lighting", "method": "otsu", "threshold": "214", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "27941", "reference_objects": "1", "reference_area_px": "29487", "absolute_count_error": "0", "area_error_pct": "-5.243", "raw_iou": "0.935214", "iou": "0.938891", "dice": "0.968482", "pixel_accuracy": "0.993899"}}, "leaf_04_dim": {"global": {"image": "leaf_04_dim", "condition": "Simulated dim light", "method": "global", "threshold": "200", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "296670", "reference_objects": "1", "reference_area_px": "29487", "absolute_count_error": "0", "area_error_pct": "906.104", "raw_iou": "0.099393", "iou": "0.099393", "dice": "0.180815", "pixel_accuracy": "0.099393"}, "otsu": {"image": "leaf_04_dim", "condition": "Simulated dim light", "method": "otsu", "threshold": "120", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "27882", "reference_objects": "1", "reference_area_px": "29487", "absolute_count_error": "0", "area_error_pct": "-5.443", "raw_iou": "0.933952", "iou": "0.93716", "dice": "0.967561", "pixel_accuracy": "0.993727"}}, "leaf_04_shadow": {"global": {"image": "leaf_04_shadow", "condition": "Simulated side shadow", "method": "global", "threshold": "200", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "186092", "reference_objects": "1", "reference_area_px": "29487", "absolute_count_error": "0", "area_error_pct": "531.098", "raw_iou": "0.156813", "iou": "0.156819", "dice": "0.271121", "pixel_accuracy": "0.470351"}, "otsu": {"image": "leaf_04_shadow", "condition": "Simulated side shadow", "method": "otsu", "threshold": "182", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "165873", "reference_objects": "1", "reference_area_px": "29487", "absolute_count_error": "0", "area_error_pct": "462.529", "raw_iou": "0.171986", "iou": "0.171989", "dice": "0.293499", "pixel_accuracy": "0.534763"}}, "leaf_05_original": {"global": {"image": "leaf_05_original", "condition": "Original lighting", "method": "global", "threshold": "200", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "32318", "reference_objects": "1", "reference_area_px": "31841", "absolute_count_error": "0", "area_error_pct": "1.498", "raw_iou": "0.953722", "iou": "0.95428", "dice": "0.976605", "pixel_accuracy": "0.994941"}, "otsu": {"image": "leaf_05_original", "condition": "Original lighting", "method": "otsu", "threshold": "205", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "32473", "reference_objects": "1", "reference_area_px": "31841", "absolute_count_error": "0", "area_error_pct": "1.985", "raw_iou": "0.953266", "iou": "0.953645", "dice": "0.976273", "pixel_accuracy": "0.994856"}}, "leaf_05_dim": {"global": {"image": "leaf_05_dim", "condition": "Simulated dim light", "method": "global", "threshold": "200", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "296670", "reference_objects": "1", "reference_area_px": "31841", "absolute_count_error": "0", "area_error_pct": "831.723", "raw_iou": "0.107328", "iou": "0.107328", "dice": "0.19385", "pixel_accuracy": "0.107328"}, "otsu": {"image": "leaf_05_dim", "condition": "Simulated dim light", "method": "otsu", "threshold": "115", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "32481", "reference_objects": "1", "reference_area_px": "31841", "absolute_count_error": "0", "area_error_pct": "2.01", "raw_iou": "0.953182", "iou": "0.953532", "dice": "0.976213", "pixel_accuracy": "0.994843"}}, "leaf_05_shadow": {"global": {"image": "leaf_05_shadow", "condition": "Simulated side shadow", "method": "global", "threshold": "200", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "186732", "reference_objects": "1", "reference_area_px": "31841", "absolute_count_error": "0", "area_error_pct": "486.451", "raw_iou": "0.170501", "iou": "0.170517", "dice": "0.291353", "pixel_accuracy": "0.477901"}, "otsu": {"image": "leaf_05_shadow", "condition": "Simulated side shadow", "method": "otsu", "threshold": "181", "width_px": "465", "height_px": "638", "objects": "1", "area_px": "167909", "reference_objects": "1", "reference_area_px": "31841", "absolute_count_error": "0", "area_error_pct": "427.336", "raw_iou": "0.189531", "iou": "0.189547", "dice": "0.318688", "pixel_accuracy": "0.541268"}}, "scene_separated": {"global": {"image": "scene_separated", "condition": "Separated composite", "method": "global", "threshold": "200", "width_px": "620", "height_px": "420", "objects": "3", "area_px": "58280", "reference_objects": "3", "reference_area_px": "60075", "absolute_count_error": "0", "area_error_pct": "-2.988", "raw_iou": "0.969381", "iou": "0.969367", "dice": "0.984445", "pixel_accuracy": "0.99293"}, "otsu": {"image": "scene_separated", "condition": "Separated composite", "method": "otsu", "threshold": "202", "width_px": "620", "height_px": "420", "objects": "3", "area_px": "58412", "reference_objects": "3", "reference_area_px": "60075", "absolute_count_error": "0", "area_error_pct": "-2.768", "raw_iou": "0.971399", "iou": "0.971301", "dice": "0.985441", "pixel_accuracy": "0.993376"}}, "scene_touching": {"global": {"image": "scene_touching", "condition": "Touching composite", "method": "global", "threshold": "200", "width_px": "620", "height_px": "420", "objects": "1", "area_px": "49029", "reference_objects": "3", "reference_area_px": "50207", "absolute_count_error": "2", "area_error_pct": "-2.346", "raw_iou": "0.97252", "iou": "0.975553", "dice": "0.987625", "pixel_accuracy": "0.995284"}, "otsu": {"image": "scene_touching", "condition": "Touching composite", "method": "otsu", "threshold": "202", "width_px": "620", "height_px": "420", "objects": "1", "area_px": "49118", "reference_objects": "3", "reference_area_px": "50207", "absolute_count_error": "2", "area_error_pct": "-2.169", "raw_iou": "0.974455", "iou": "0.97701", "dice": "0.988372", "pixel_accuracy": "0.995565"}}};
+const dropdown = document.getElementById("case");
+const integer = new Intl.NumberFormat("en");
+
+function updateCase() {
+  const image = dropdown.value;
+  const comparison = cases[image];
+  const rows = [
+    ["Fixed global", comparison.global],
+    ["Otsu", comparison.otsu],
+  ].map(([name, row]) => {
+    const tr = document.createElement("tr");
+    [name, row.threshold, row.objects, integer.format(row.area_px), Number(row.iou).toFixed(3)]
+      .forEach((value, index) => {
+        const cell = document.createElement(index === 0 ? "th" : "td");
+        if (index === 0) cell.scope = "row";
+        cell.textContent = value;
+        tr.append(cell);
+      });
+    return tr;
+  });
+  document.getElementById("selected-results").replaceChildren(...rows);
+  const source = `outputs/${image}/comparison.png`;
+  document.getElementById("comparison").src = source;
+  document.getElementById("image-link").href = source;
+  document.getElementById("input").href = `data/inputs/${image}.png`;
+  document.getElementById("raw").href = `outputs/${image}/otsu/raw_mask.png`;
+  document.getElementById("clean").href = `outputs/${image}/otsu/mask.png`;
+  document.getElementById("reference").textContent =
+    `Reference — count ${comparison.otsu.reference_objects}, visible area ${integer.format(comparison.otsu.reference_area_px)} px².`;
+}
+dropdown.addEventListener("change", updateCase);
+updateCase();
+</script>
+</html>

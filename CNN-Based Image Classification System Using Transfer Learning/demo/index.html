@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DigitLab — Handwritten digit classifier</title>
+<link rel="stylesheet" href="/style.css">
+<script defer src="/demo.js"></script>
+</head>
+<body>
+<header><div class="shell nav"><a class="brand" href="/">DigitLab</a><nav aria-label="Main navigation"><a href="#classify">Classify</a><a href="#evaluation">Evaluation</a></nav></div></header>
+<main class="shell">
+  <section class="intro" id="classify">
+    <h1>Classify a handwritten digit.</h1>
+    <p>Try an unseen test image or upload a cropped digit. Compare a basic CNN with fine-tuned ResNet18.</p>
+  </section>
+  <div class="grid">
+    <section class="panel" aria-labelledby="input">
+      <h2 id="input">Input image</h2>
+      <div class="preview"><p id="placeholder">Choose a test sample below</p><img id="preview" alt="Digit to classify" hidden></div>
+      <label for="samples">Held-out sample</label>
+      <select id="samples"><option value="">Choose a digit</option></select>
+      <label for="upload">Or upload an image</label>
+      <input id="upload" type="file" accept="image/png,image/jpeg,image/webp">
+      <small>PNG, JPEG or WebP, up to 5 MB.</small>
+      <label class="checkbox"><input id="invert" type="checkbox"> Invert dark strokes on a light background</label>
+    </section>
+    <section class="panel" aria-labelledby="prediction">
+      <h2 id="prediction">Prediction</h2>
+      <label class="first" for="model">Model</label>
+      <select id="model"><option value="resnet">ResNet18 · Transfer learning</option><option value="cnn">Basic CNN · From scratch</option></select>
+      <button id="predict" type="button" disabled>Classify image</button>
+      <p id="status" role="status">Select a test sample or upload an image.</p>
+      <div id="result" hidden>
+        <div class="verdict"><strong id="digit"></strong><div><b id="score"></b><br><span id="actual"></span></div></div>
+        <h3>Top 3 scores</h3><div id="scores"></div>
+      </div>
+    </section>
+  </div>
+  <section id="evaluation">
+    <h2>Held-out evaluation</h2>
+    <div id="metrics"></div>
+    <div class="grid">
+      <figure class="panel"><img loading="lazy" src="/figures/training_curves.png" alt="Training and validation accuracy and loss by epoch"><figcaption>Learning curves</figcaption></figure>
+      <figure class="panel"><img loading="lazy" src="/figures/confusion_matrices.png" alt="Confusion matrices for both models"><figcaption>Confusion matrices</figcaption></figure>
+    </div>
+  </section>
+</main>
+</body>
+</html>
